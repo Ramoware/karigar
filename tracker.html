@@ -1,0 +1,551 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tracker Login</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    h1, h2 {
+      color: #2c3e50;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    .form-group {
+      margin: 12px 0;
+    }
+    label {
+      display: inline-block;
+      width: 150px;
+      font-weight: bold;
+      color: #34495e;
+    }
+    input, select, button {
+      padding: 8px 12px;
+      margin: 5px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+      min-width: 100px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    button.danger {
+      background-color: #e74c3c;
+    }
+    button.danger:hover {
+      background-color: #c0392b;
+    }
+    button.success {
+      background-color: #2ecc71;
+    }
+    button.success:hover {
+      background-color: #27ae60;
+    }
+    button.current {
+      background-color: #f39c12;
+    }
+    button.current:hover {
+      background-color: #e67e22;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+    }
+    th {
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .login-box, .main-app {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .error {
+      color: #e74c3c;
+      text-align: center;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .hidden {
+      display: none;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+    }
+    #search {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    .week-selector {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .week-range {
+      text-align: center;
+      font-weight: bold;
+      color: #2c3e50;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    .total-row {
+      font-weight: bold;
+      background-color: #e8f4fc !important;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      .form-group label {
+        display: block;
+        width: 100%;
+      }
+      .action-buttons {
+        flex-direction: column;
+      }
+      .week-selector {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-box">
+    <h1>🔐 Tracker Login</h1>
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input type="text" id="username" value="ram" />
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" value="ram" />
+    </div>
+    <div style="text-align: center;">
+      <button onclick="login()" class="success">Login</button>
+    </div>
+    <p id="loginError" class="error hidden">Incorrect username or password!</p>
+  </div>
+
+  <!-- Main App -->
+  <div id="mainApp" class="main-app hidden">
+    <h1>💼 Karigar Payment Tracker</h1>
+    <button onclick="logout()" class="danger" style="float: right;">Logout</button>
+    <div style="clear: both;"></div>
+
+    <h2>➕ Add/Edit Worker Payment</h2>
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" id="name" placeholder="Enter worker name" />
+    </div>
+    <div class="form-group">
+      <label for="chalan">Chalan Number:</label>
+      <input type="text" id="chalan" placeholder="Enter chalan number" />
+    </div>
+    <div class="form-group">
+      <label for="weekly">Weekly Payment (₹):</label>
+      <input type="number" id="weekly" placeholder="Enter weekly payment" min="0" oninput="calculateTotal()" />
+    </div>
+    <div class="form-group">
+      <label for="sunday">Sunday Payment (₹):</label>
+      <input type="number" id="sunday" placeholder="Enter Sunday payment" min="0" oninput="calculateTotal()" />
+    </div>
+    <div class="form-group">
+      <label for="total">Total Payment (₹):</label>
+      <input type="number" id="total" placeholder="Auto-calculated" min="0" readonly />
+    </div>
+    <div class="form-group">
+      <label for="dues">Dues (₹):</label>
+      <input type="number" id="dues" placeholder="Enter dues amount" min="0" />
+    </div>
+    <div style="text-align: center;">
+      <button onclick="addWorker()" class="success">Save Payment</button>
+      <button onclick="clearForm()">Clear Form</button>
+    </div>
+
+    <h2>📋 Payment Records</h2>
+    <div class="week-selector">
+      <button onclick="changeWeek(-1)">◀ Previous Week</button>
+      <button onclick="goToCurrentWeek()" class="current">Current Week</button>
+      <button onclick="changeWeek(1)">Next Week ▶</button>
+    </div>
+    <div class="week-range" id="weekRangeDisplay"></div>
+    <input type="text" id="search" oninput="searchWorkers()" placeholder="Search by name..." />
+    <table id="workerTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Chalan No.</th>
+          <th>Weekly (₹)</th>
+          <th>Sunday (₹)</th>
+          <th>Total (₹)</th>
+          <th>Dues (₹)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="workerList"></tbody>
+      <tfoot id="tableFooter">
+        <tr class="total-row">
+          <td colspan="2"><strong>Weekly Totals:</strong></td>
+          <td id="totalWeekly">₹0</td>
+          <td id="totalSunday">₹0</td>
+          <td id="grandTotal">₹0</td>
+          <td id="totalDues">₹0</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <script>
+    // Login credentials
+    const correctUser = "ram";
+    const correctPass = "ram";
+    let currentEditingId = null;
+    let currentWeek = 0; // 0 means current week, -1 previous week, etc.
+
+    // Initialize the app
+    function initApp() {
+      if (!document.getElementById("loginScreen").classList.contains("hidden")) {
+        document.getElementById("username").focus();
+      }
+      updateWeekDisplay();
+    }
+
+    // Calculate total payment automatically
+    function calculateTotal() {
+      const weekly = parseFloat(document.getElementById("weekly").value) || 0;
+      const sunday = parseFloat(document.getElementById("sunday").value) || 0;
+      const total = weekly + sunday;
+      document.getElementById("total").value = total;
+    }
+
+    // Update week display
+    function updateWeekDisplay() {
+      const today = new Date();
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay() + (currentWeek * 7));
+      
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      const weekRangeText = `${weekStart.toLocaleDateString('en-IN', options)} to ${weekEnd.toLocaleDateString('en-IN', options)}`;
+      
+      document.getElementById("weekRangeDisplay").textContent = weekRangeText;
+    }
+
+    // Go to current week
+    function goToCurrentWeek() {
+      currentWeek = 0;
+      updateWeekDisplay();
+      loadWorkers();
+    }
+
+    // Change week view
+    function changeWeek(delta) {
+      currentWeek += delta;
+      updateWeekDisplay();
+      loadWorkers();
+    }
+
+    // Check if worker name already exists for current week
+    function isDuplicateName(name, editingId) {
+      const workers = getWorkers();
+      return workers.some(worker => 
+        worker.name.toLowerCase() === name.toLowerCase() && 
+        worker.week === currentWeek && 
+        worker.id !== editingId
+      );
+    }
+
+    // Login function
+    function login() {
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value;
+
+      if (user === correctUser && pass === correctPass) {
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("mainApp").classList.remove("hidden");
+        loadWorkers();
+      } else {
+        document.getElementById("loginError").classList.remove("hidden");
+        document.getElementById("password").value = "";
+        document.getElementById("password").focus();
+      }
+    }
+
+    // Logout
+    function logout() {
+      if (confirm("Are you sure you want to logout?")) {
+        document.getElementById("mainApp").classList.add("hidden");
+        document.getElementById("loginScreen").classList.remove("hidden");
+        document.getElementById("loginError").classList.add("hidden");
+        clearForm();
+      }
+    }
+
+    // Add or update worker payment
+    function addWorker() {
+      const name = document.getElementById("name").value.trim();
+      const chalan = document.getElementById("chalan").value.trim();
+      const weekly = document.getElementById("weekly").value || "0";
+      const sunday = document.getElementById("sunday").value || "0";
+      const total = document.getElementById("total").value || "0";
+      const dues = document.getElementById("dues").value || "0";
+
+      if (!name) {
+        alert("Please enter worker name!");
+        document.getElementById("name").focus();
+        return;
+      }
+
+      // Check for duplicate name in the same week
+      if (isDuplicateName(name, currentEditingId)) {
+        alert("A worker with this name already exists for this week! Please use a different name or edit the existing entry.");
+        document.getElementById("name").focus();
+        return;
+      }
+
+      const workers = getWorkers();
+      
+      if (currentEditingId) {
+        // Update existing worker
+        const index = workers.findIndex(w => w.id === currentEditingId);
+        if (index !== -1) {
+          workers[index] = { 
+            name, 
+            chalan,
+            weekly, 
+            sunday,
+            total,
+            dues, 
+            id: currentEditingId,
+            week: currentWeek
+          };
+        }
+      } else {
+        // Add new worker
+        workers.push({ 
+          name, 
+          chalan,
+          weekly, 
+          sunday,
+          total,
+          dues, 
+          id: Date.now(),
+          week: currentWeek
+        });
+      }
+
+      localStorage.setItem("karigarWorkers", JSON.stringify(workers));
+      clearForm();
+      loadWorkers();
+      
+      if (currentEditingId) {
+        alert("Payment updated successfully!");
+        currentEditingId = null;
+      } else {
+        alert("Payment added successfully!");
+      }
+    }
+
+    // Load workers for current week and calculate totals
+    function loadWorkers() {
+      const list = document.getElementById("workerList");
+      list.innerHTML = "";
+      const workers = getWorkers().filter(w => w.week === currentWeek);
+
+      let totalWeekly = 0;
+      let totalSunday = 0;
+      let grandTotal = 0;
+      let totalDues = 0;
+
+      if (workers.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="7" style="text-align: center;">No payments recorded for this week.</td>`;
+        list.appendChild(tr);
+      } else {
+        workers.forEach(worker => {
+          const weekly = parseFloat(worker.weekly) || 0;
+          const sunday = parseFloat(worker.sunday) || 0;
+          const total = parseFloat(worker.total) || 0;
+          const dues = parseFloat(worker.dues) || 0;
+
+          totalWeekly += weekly;
+          totalSunday += sunday;
+          grandTotal += total;
+          totalDues += dues;
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${worker.name}</td>
+            <td>${worker.chalan || '-'}</td>
+            <td>₹${weekly.toLocaleString('en-IN')}</td>
+            <td>₹${sunday.toLocaleString('en-IN')}</td>
+            <td>₹${total.toLocaleString('en-IN')}</td>
+            <td>₹${dues.toLocaleString('en-IN')}</td>
+            <td class="action-buttons">
+              <button onclick="editWorker(${worker.id})">Edit</button>
+              <button onclick="deleteWorker(${worker.id})" class="danger">Delete</button>
+            </td>
+          `;
+          list.appendChild(tr);
+        });
+      }
+
+      // Update footer totals
+      document.getElementById("totalWeekly").textContent = `₹${totalWeekly.toLocaleString('en-IN')}`;
+      document.getElementById("totalSunday").textContent = `₹${totalSunday.toLocaleString('en-IN')}`;
+      document.getElementById("grandTotal").textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+      document.getElementById("totalDues").textContent = `₹${totalDues.toLocaleString('en-IN')}`;
+    }
+
+    // Delete worker payment
+    function deleteWorker(id) {
+      if (confirm("Are you sure you want to delete this payment record?")) {
+        let workers = getWorkers();
+        workers = workers.filter(w => w.id !== id);
+        localStorage.setItem("karigarWorkers", JSON.stringify(workers));
+        loadWorkers();
+        if (currentEditingId === id) {
+          clearForm();
+          currentEditingId = null;
+        }
+      }
+    }
+
+    // Edit worker payment
+    function editWorker(id) {
+      const workers = getWorkers();
+      const worker = workers.find(w => w.id === id);
+      
+      if (worker) {
+        document.getElementById("name").value = worker.name;
+        document.getElementById("chalan").value = worker.chalan || '';
+        document.getElementById("weekly").value = worker.weekly;
+        document.getElementById("sunday").value = worker.sunday;
+        document.getElementById("total").value = worker.total;
+        document.getElementById("dues").value = worker.dues;
+        
+        currentEditingId = id;
+        document.getElementById("name").focus();
+      }
+    }
+
+    // Clear form
+    function clearForm() {
+      document.getElementById("name").value = "";
+      document.getElementById("chalan").value = "";
+      document.getElementById("weekly").value = "";
+      document.getElementById("sunday").value = "";
+      document.getElementById("total").value = "";
+      document.getElementById("dues").value = "";
+      currentEditingId = null;
+      document.getElementById("name").focus();
+    }
+
+    // Search workers
+    function searchWorkers() {
+      const query = document.getElementById("search").value.toLowerCase();
+      const workers = getWorkers().filter(w => w.week === currentWeek);
+      const list = document.getElementById("workerList");
+      list.innerHTML = "";
+
+      let totalWeekly = 0;
+      let totalSunday = 0;
+      let grandTotal = 0;
+      let totalDues = 0;
+
+      const filteredWorkers = workers.filter(w => w.name.toLowerCase().includes(query));
+      
+      if (filteredWorkers.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="7" style="text-align: center;">No payments match your search.</td>`;
+        list.appendChild(tr);
+      } else {
+        filteredWorkers.forEach(worker => {
+          const weekly = parseFloat(worker.weekly) || 0;
+          const sunday = parseFloat(worker.sunday) || 0;
+          const total = parseFloat(worker.total) || 0;
+          const dues = parseFloat(worker.dues) || 0;
+
+          totalWeekly += weekly;
+          totalSunday += sunday;
+          grandTotal += total;
+          totalDues += dues;
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${worker.name}</td>
+            <td>${worker.chalan || '-'}</td>
+            <td>₹${weekly.toLocaleString('en-IN')}</td>
+            <td>₹${sunday.toLocaleString('en-IN')}</td>
+            <td>₹${total.toLocaleString('en-IN')}</td>
+            <td>₹${dues.toLocaleString('en-IN')}</td>
+            <td class="action-buttons">
+              <button onclick="editWorker(${worker.id})">Edit</button>
+              <button onclick="deleteWorker(${worker.id})" class="danger">Delete</button>
+            </td>
+          `;
+          list.appendChild(tr);
+        });
+      }
+
+      // Update footer totals for search results
+      document.getElementById("totalWeekly").textContent = `₹${totalWeekly.toLocaleString('en-IN')}`;
+      document.getElementById("totalSunday").textContent = `₹${totalSunday.toLocaleString('en-IN')}`;
+      document.getElementById("grandTotal").textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+      document.getElementById("totalDues").textContent = `₹${totalDues.toLocaleString('en-IN')}`;
+    }
+
+    // Helper: Get workers from localStorage
+    function getWorkers() {
+      const data = localStorage.getItem("karigarWorkers");
+      return data ? JSON.parse(data) : [];
+    }
+
+    // Initialize the app when page loads
+    window.onload = initApp;
+  </script>
+</body>
+</html>
