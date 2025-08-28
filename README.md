@@ -74,9 +74,9 @@ You keep India moving. This app? Just helps you pay on time. 💪
 
 ##  Screenshot (Imagine This!)
 
-!login(1.png)
-!entry(2.png)
-!records(3.png)
+![login](1.png)
+![entry](2.png)
+![records](3.png)
 
 ---
 
