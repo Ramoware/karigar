@@ -1,5 +1,7 @@
 # 💼 Karigar Payment Tracker 
 
+![banner](4.png)
+
 > Because even the smallest workshop deserves a *digital dhandha* upgrade! 💸✨
 
 Namaste, fellow chai-sipper and business boss! ☕🔥  
