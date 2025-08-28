@@ -92,7 +92,7 @@ So please:
 
 ---
 
-## 🧑‍💻 Want to Improve It?
+## Want to Improve It?
 
 PRs welcome! Whether it’s:
 - Hindi translation
