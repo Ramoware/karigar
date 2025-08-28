@@ -1,0 +1,1580 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>💼 Karigar Payment Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+      color: #2c3e50;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    h1 { 
+      font-size: 28px;
+      margin-top: 10px;
+    }
+    h2 {
+      font-size: 22px;
+      margin-top: 25px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3498db;
+    }
+    /* Form Layout */
+    .form-container {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .form-column {
+      flex: 1;
+      min-width: 320px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .form-group {
+      margin: 15px 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    label {
+      font-weight: bold;
+      color: #34495e;
+      margin-bottom: 8px;
+    }
+    input, textarea {
+      padding: 10px 12px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 100%;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    }
+
+    /* Autocomplete Suggestions */
+    .suggestions-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-top: none;
+      max-height: 150px;
+      overflow-y: auto;
+      border-radius: 0 0 4px 4px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      z-index: 100;
+      display: none;
+    }
+    .suggestion-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s;
+    }
+    .suggestion-item:hover, .suggestion-item.selected {
+      background-color: #f0f7ff;
+      font-weight: bold;
+    }
+    .highlight {
+      background-color: #fffacd;
+      font-weight: bold;
+    }
+
+    /* Buttons */
+    button {
+      padding: 10px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .btn-success {
+      background-color: #2ecc71;
+      color: white;
+    }
+    .btn-success:hover {
+      background-color: #27ae60;
+    }
+    .btn-danger {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+    .btn-info {
+      background-color: #17a2b8;
+      color: white;
+    }
+    .btn-info:hover {
+      background-color: #138496;
+    }
+    .btn-current {
+      background-color: #f39c12;
+      color: white;
+    }
+    .btn-current:hover {
+      background-color: #e67e22;
+    }
+    .btn-secondary {
+      background-color: #95a5a6;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #7f8c8d;
+    }
+    .btn-export {
+      background-color: #6f42c1;
+      color: white;
+    }
+    .btn-export:hover {
+      background-color: #5a32a3;
+    }
+    /* Chalan Entry System */
+    .chalan-section {
+      margin: 15px 0;
+    }
+    .chalan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .chalan-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .chalan-input {
+      flex: 1;
+    }
+    .chalan-actions {
+      display: flex;
+      gap: 5px;
+    }
+    .chalan-btn {
+      padding: 8px 12px;
+      width: 40px;
+      text-align: center;
+    }
+    /* Table Styles */
+    .table-container {
+      overflow-x: auto;
+      margin: 20px 0;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f0f7ff;
+    }
+    /* Login Box */
+    .login-box {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: 50px auto;
+    }
+    .main-app {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      margin-top: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    /* Utilities */
+    .error {
+      color: #e74c3c;
+      text-align: center;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .hidden { display: none; }
+    .action-buttons { 
+      display: flex; 
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    #search {
+      width: 100%;
+      padding: 12px;
+      margin: 15px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .week-selector {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .week-range {
+      text-align: center;
+      font-weight: bold;
+      color: #2c3e50;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    .total-row {
+      font-weight: bold;
+      background-color: #e8f4fc !important;
+    }
+    /* Stacked chalan display */
+    .chalan-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .chalan-line {
+      padding: 4px 0;
+      border-bottom: 1px dashed #eee;
+    }
+    .chalan-line:last-child {
+      border-bottom: none;
+    }
+    /* Notes display */
+    .notes-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      color: #7f8c8d;
+      font-size: 0.9em;
+    }
+    .note-line {
+      padding: 2px 0;
+    }
+    /* Header buttons */
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-bottom: 15px;
+    }
+    /* Modal for View */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover {
+      color: black;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      .form-container {
+        flex-direction: column;
+      }
+      .form-column {
+        min-width: 100%;
+      }
+      .chalan-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .chalan-actions {
+        justify-content: center;
+      }
+      th, td {
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+      .action-buttons {
+        flex-direction: column;
+      }
+      .header-buttons {
+        flex-direction: column;
+        align-items: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-box">
+    <h1>🔐 Tracker Login</h1>
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input type="text" id="username" value="ram" />
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" value="ram" />
+    </div>
+    <div style="text-align: center; margin-top: 20px;">
+      <button onclick="login()" class="btn-success">Login</button>
+    </div>
+    <p id="loginError" class="error hidden">Incorrect username or password!</p>
+  </div>
+
+  <!-- Main App -->
+  <div id="mainApp" class="main-app hidden">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h1>💼 Karigar Payment Tracker</h1>
+      <div class="header-buttons">
+        <button onclick="exportCSV()" class="btn-info">Export CSV</button>
+        <button onclick="importCSV()" class="btn-info">Import CSV</button>
+        <button onclick="logout()" class="btn-danger">Logout</button>
+      </div>
+    </div>
+
+    <!-- Hidden file input for CSV import -->
+    <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="handleCSVImport(this.files)" />
+
+    <h2>➕ Add/Edit Worker Payment</h2>
+    <div class="form-container">
+      <div class="form-column">
+        <div class="form-group">
+          <label for="nameAutocomplete">Name:</label>
+          <input type="text" id="nameAutocomplete" placeholder="Worker name" autocomplete="off" />
+          <div id="nameSuggestions" class="suggestions-dropdown"></div>
+        </div>
+        <div class="form-group">
+          <label for="oldPayment">Old Payment Baaki (₹):</label>
+          <input type="number" id="oldPayment" placeholder="0" min="0" oninput="calculateTotals()" />
+        </div>
+
+        <!-- Chalan Entries -->
+        <div class="chalan-section">
+          <div class="chalan-header">
+            <label>Chalan Entries:</label>
+            <button type="button" onclick="addChalanRow()" class="btn-info chalan-btn">+</button>
+          </div>
+          <div id="chalanList">
+            <!-- Dynamic chalan rows will be added here -->
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="totalChalanOld">Total (C + O) (₹):</label>
+          <input type="number" id="totalChalanOld" placeholder="Auto" min="0" readonly />
+        </div>
+      </div>
+      <div class="form-column">
+        <!-- Weekly Payment Entries -->
+        <div class="chalan-section">
+          <div class="chalan-header">
+            <label>Weekly Payment Entries:</label>
+            <button type="button" onclick="addWeeklyRow()" class="btn-info chalan-btn">+</button>
+          </div>
+          <div id="weeklyList">
+            <!-- Dynamic weekly rows will be added here -->
+          </div>
+        </div>
+        <!-- Sunday Payment Entries -->
+        <div class="chalan-section">
+          <div class="chalan-header">
+            <label>Sunday Payment Entries:</label>
+            <button type="button" onclick="addSundayRow()" class="btn-info chalan-btn">+</button>
+          </div>
+          <div id="sundayList">
+            <!-- Dynamic sunday rows will be added here -->
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="totalPayment">Total Payment (₹):</label>
+          <input type="number" id="totalPayment" placeholder="Auto" min="0" readonly />
+        </div>
+        <div class="form-group">
+          <label for="baaki">Baaki (₹):</label>
+          <input type="number" id="baaki" placeholder="Auto" min="0" readonly />
+        </div>
+        <div class="form-group">
+          <label for="advance">Advance Payment (₹):</label>
+          <input type="number" id="advance" placeholder="0" min="0" />
+        </div>
+      </div>
+    </div>
+    <div style="text-align: center; margin: 25px 0;">
+      <button onclick="addWorker()" class="btn-success">Save Payment</button>
+      <button onclick="clearForm()" class="btn-secondary">Clear Form</button>
+    </div>
+
+    <h2>📋 Payment Records</h2>
+    <div class="week-selector">
+      <button onclick="changeWeek(-1)" class="btn-current">◀ Previous Week</button>
+      <button onclick="goToCurrentWeek()" class="btn-current">Current Week</button>
+      <button onclick="changeWeek(1)" class="btn-current">Next Week ▶</button>
+    </div>
+    <div class="week-range" id="weekRangeDisplay"></div>
+    <input type="text" id="search" placeholder="Search by name..." oninput="searchWorkers()" />
+    <div class="table-container">
+      <table id="workerTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Old Payment</th>
+            <th>Chalan No.</th>
+            <th>Chalan Amount</th>
+            <th>Total (C+O)</th>
+            <th>Weekly Payments</th>
+            <th>Sunday Payments</th>
+            <th>Total Pay</th>
+            <th>Baaki</th>
+            <th>Advance</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="workerList"></tbody>
+        <tfoot id="tableFooter">
+          <tr class="total-row">
+            <td colspan="2"><strong>Totals:</strong></td>
+            <td id="totalOldPayment">₹0</td>
+            <td id="totalChalanAmount">₹0</td>
+            <td id="totalChalanOldSum">₹0</td>
+            <td id="totalWeekly">₹0</td>
+            <td id="totalSunday">₹0</td>
+            <td id="totalPaymentSum">₹0</td>
+            <td id="totalBaaki">₹0</td>
+            <td id="totalAdvance">₹0</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- View Modal -->
+  <div id="viewModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Payment Details</h2>
+        <span class="close" onclick="closeModal()">&times;</span>
+      </div>
+      <div id="modalDetails"></div>
+      <div class="modal-actions">
+        <button onclick="downloadAsImage()" class="btn-export">Download as JPEG</button>
+        <button onclick="closeModal()" class="btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <script>
+    const correctUser = "ram";
+    const correctPass = "ram";
+    let currentEditingId = null;
+    let currentWeek = 0;
+    let currentViewingWorker = null;
+    let searchTimeout = null;
+
+    // === Autocomplete Logic ===
+    const NAME_STORAGE_KEY = "karigarWorkerNames";
+    let workerNames = JSON.parse(localStorage.getItem(NAME_STORAGE_KEY)) || [];
+    let filteredNames = [];
+    let selectedSuggestionIndex = -1;
+
+    // Save name to storage
+    function saveWorkerName(name) {
+      if (!name) return;
+      const normalizedName = name.trim().toLowerCase();
+      if (!workerNames.includes(normalizedName)) {
+        workerNames.push(normalizedName);
+        localStorage.setItem(NAME_STORAGE_KEY, JSON.stringify(workerNames));
+      }
+    }
+
+    // Update suggestions dropdown
+    function updateSuggestions(inputValue) {
+      if (!inputValue) {
+        hideSuggestions();
+        return;
+      }
+
+      const query = inputValue.toLowerCase();
+      filteredNames = workerNames.filter(name => name.includes(query));
+      selectedSuggestionIndex = -1;
+
+      const dropdown = document.getElementById("nameSuggestions");
+      dropdown.innerHTML = "";
+
+      if (filteredNames.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
+      filteredNames.forEach((name, index) => {
+        const div = document.createElement("div");
+        div.className = "suggestion-item";
+        div.textContent = name;
+
+        // Highlight match
+        const startPos = name.indexOf(query);
+        if (startPos !== -1) {
+          div.innerHTML = '';
+          div.appendChild(document.createTextNode(name.slice(0, startPos)));
+          const highlight = document.createElement('span');
+          highlight.className = 'highlight';
+          highlight.textContent = name.slice(startPos, startPos + query.length);
+          div.appendChild(highlight);
+          div.appendChild(document.createTextNode(name.slice(startPos + query.length)));
+        }
+
+        div.onclick = () => {
+          document.getElementById("nameAutocomplete").value = name;
+          hideSuggestions();
+        };
+        dropdown.appendChild(div);
+      });
+
+      dropdown.style.display = "block";
+    }
+
+    // Show suggestions
+    function showSuggestions() {
+      const inputValue = document.getElementById("nameAutocomplete").value.trim();
+      updateSuggestions(inputValue);
+    }
+
+    // Hide suggestions
+    function hideSuggestions() {
+      document.getElementById("nameSuggestions").style.display = "none";
+    }
+
+    // Navigate with arrow keys
+    function navigateSuggestions(direction) {
+      const items = document.querySelectorAll("#nameSuggestions .suggestion-item");
+      if (items.length === 0) return;
+
+      // Remove previous selection
+      if (selectedSuggestionIndex >= 0 && items[selectedSuggestionIndex]) {
+        items[selectedSuggestionIndex].classList.remove("selected");
+      }
+
+      // Update index
+      selectedSuggestionIndex += direction;
+      if (selectedSuggestionIndex < 0) selectedSuggestionIndex = 0;
+      if (selectedSuggestionIndex >= items.length) selectedSuggestionIndex = items.length - 1;
+
+      // Add new selection
+      items[selectedSuggestionIndex].classList.add("selected");
+    }
+
+    // Initialize the app
+    function initApp() {
+      addChalanRow();
+      addWeeklyRow();
+      addSundayRow();
+      document.getElementById("username").focus();
+      updateWeekDisplay();
+
+      // Setup autocomplete events
+      const nameInput = document.getElementById("nameAutocomplete");
+      nameInput.addEventListener("input", (e) => {
+        updateSuggestions(e.target.value);
+      });
+      nameInput.addEventListener("focus", showSuggestions);
+      nameInput.addEventListener("blur", () => {
+        setTimeout(hideSuggestions, 150); // Delay to allow click
+      });
+
+      // Keyboard navigation
+      nameInput.addEventListener("keydown", (e) => {
+        const dropdown = document.getElementById("nameSuggestions");
+        if (e.key === "ArrowDown" && dropdown.style.display !== "none") {
+          e.preventDefault();
+          navigateSuggestions(1);
+        } else if (e.key === "ArrowUp" && dropdown.style.display !== "none") {
+          e.preventDefault();
+          navigateSuggestions(-1);
+        } else if (e.key === "Enter") {
+          e.preventDefault();
+          const items = document.querySelectorAll("#nameSuggestions .suggestion-item");
+          if (items.length > 0 && selectedSuggestionIndex >= 0) {
+            nameInput.value = filteredNames[selectedSuggestionIndex];
+            hideSuggestions();
+          } else {
+            // If no selection, just use typed value
+            hideSuggestions();
+          }
+        }
+      });
+
+      // Load worker names from existing records
+      loadWorkerNamesFromRecords();
+      
+      // Add keyboard event listener for form navigation
+      document.addEventListener('keydown', handleEnterKeyNavigation);
+    }
+
+    // Load worker names from localStorage records (in case of old data)
+    function loadWorkerNamesFromRecords() {
+      const workers = getWorkers();
+      workers.forEach(w => {
+        saveWorkerName(w.name);
+      });
+    }
+
+    // Handle Enter key navigation between inputs
+    function handleEnterKeyNavigation(e) {
+      if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+        e.preventDefault();
+        const inputs = Array.from(document.querySelectorAll('input:not([readonly])'));
+        const currentIndex = inputs.indexOf(e.target);
+        if (currentIndex > -1 && currentIndex < inputs.length - 1) {
+          inputs[currentIndex + 1].focus();
+        }
+      }
+    }
+
+    // Add new chalan row
+    function addChalanRow(number = '', amount = '') {
+      const container = document.getElementById('chalanList');
+      const row = document.createElement('div');
+      row.className = 'chalan-row';
+      row.innerHTML = `
+        <div class="chalan-input">
+          <input type="text" class="chalan-number" placeholder="Chalan No." value="${number}" />
+        </div>
+        <div class="chalan-input">
+          <input type="number" class="chalan-amount" placeholder="Amount" value="${amount}" min="0" oninput="calculateTotals()" />
+        </div>
+        <div class="chalan-actions">
+          <button type="button" onclick="removeChalanRow(this)" class="btn-danger chalan-btn">−</button>
+        </div>
+      `;
+      container.appendChild(row);
+      calculateTotals();
+    }
+
+    // Remove chalan row
+    function removeChalanRow(button) {
+      const container = document.getElementById('chalanList');
+      if (container.children.length > 1) {
+        button.closest('.chalan-row').remove();
+        calculateTotals();
+      } else {
+        alert("You need at least one chalan entry.");
+      }
+    }
+
+    // Add new weekly row
+    function addWeeklyRow(amount = '', note = '') {
+      const container = document.getElementById('weeklyList');
+      const row = document.createElement('div');
+      row.className = 'chalan-row';
+      row.innerHTML = `
+        <div class="chalan-input">
+          <input type="number" class="weekly-amount" placeholder="Amount" value="${amount}" min="0" oninput="calculateTotals()" />
+        </div>
+        <div class="chalan-input">
+          <input type="text" class="weekly-note" placeholder="Note" value="${note}" />
+        </div>
+        <div class="chalan-actions">
+          <button type="button" onclick="removeWeeklyRow(this)" class="btn-danger chalan-btn">−</button>
+        </div>
+      `;
+      container.appendChild(row);
+      calculateTotals();
+    }
+
+    // Remove weekly row
+    function removeWeeklyRow(button) {
+      const container = document.getElementById('weeklyList');
+      if (container.children.length > 1) {
+        button.closest('.chalan-row').remove();
+        calculateTotals();
+      } else {
+        alert("You need at least one weekly payment entry.");
+      }
+    }
+
+    // Add new sunday row
+    function addSundayRow(amount = '', note = '') {
+      const container = document.getElementById('sundayList');
+      const row = document.createElement('div');
+      row.className = 'chalan-row';
+      row.innerHTML = `
+        <div class="chalan-input">
+          <input type="number" class="sunday-amount" placeholder="Amount" value="${amount}" min="0" oninput="calculateTotals()" />
+        </div>
+        <div class="chalan-input">
+          <input type="text" class="sunday-note" placeholder="Note" value="${note}" />
+        </div>
+        <div class="chalan-actions">
+          <button type="button" onclick="removeSundayRow(this)" class="btn-danger chalan-btn">−</button>
+        </div>
+      `;
+      container.appendChild(row);
+      calculateTotals();
+    }
+
+    // Remove sunday row
+    function removeSundayRow(button) {
+      const container = document.getElementById('sundayList');
+      if (container.children.length > 1) {
+        button.closest('.chalan-row').remove();
+        calculateTotals();
+      } else {
+        alert("You need at least one sunday payment entry.");
+      }
+    }
+
+    // Calculate totals
+    function calculateTotals() {
+      const oldPayment = parseFloat(document.getElementById("oldPayment").value) || 0;
+      const chalanAmounts = document.querySelectorAll('.chalan-amount');
+      let totalChalanAmount = 0;
+      chalanAmounts.forEach(input => {
+        totalChalanAmount += parseFloat(input.value) || 0;
+      });
+      const totalChalanOld = oldPayment + totalChalanAmount;
+      document.getElementById("totalChalanOld").value = totalChalanOld;
+
+      const weeklyAmounts = document.querySelectorAll('.weekly-amount');
+      let totalWeeklyAmount = 0;
+      weeklyAmounts.forEach(input => {
+        totalWeeklyAmount += parseFloat(input.value) || 0;
+      });
+
+      const sundayAmounts = document.querySelectorAll('.sunday-amount');
+      let totalSundayAmount = 0;
+      sundayAmounts.forEach(input => {
+        totalSundayAmount += parseFloat(input.value) || 0;
+      });
+
+      const totalPayment = totalWeeklyAmount + totalSundayAmount;
+      document.getElementById("totalPayment").value = totalPayment;
+
+      const baaki = totalChalanOld - totalPayment;
+      document.getElementById("baaki").value = baaki;
+    }
+
+    // Update week display
+    function updateWeekDisplay() {
+      const today = new Date();
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay() + currentWeek * 7);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      document.getElementById("weekRangeDisplay").textContent =
+        `${weekStart.toLocaleDateString('en-IN', options)} to ${weekEnd.toLocaleDateString('en-IN', options)}`;
+    }
+
+    function goToCurrentWeek() { 
+      currentWeek = 0; 
+      updateWeekDisplay(); 
+      loadWorkers(); 
+    }
+
+    function changeWeek(delta) { 
+      currentWeek += delta; 
+      updateWeekDisplay(); 
+      loadWorkers(); 
+    }
+
+    // Login
+    function login() {
+      const u = document.getElementById("username").value.trim();
+      const p = document.getElementById("password").value;
+      if (u === correctUser && p === correctPass) {
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("mainApp").classList.remove("hidden");
+        loadWorkers();
+      } else {
+        document.getElementById("loginError").classList.remove("hidden");
+        document.getElementById("password").value = "";
+        document.getElementById("password").focus();
+      }
+    }
+
+    function logout() {
+      if (confirm("Are you sure you want to logout?")) {
+        document.getElementById("mainApp").classList.add("hidden");
+        document.getElementById("loginScreen").classList.remove("hidden");
+        document.getElementById("loginError").classList.add("hidden");
+        clearForm();
+      }
+    }
+
+    // Add or Update Worker
+    function addWorker() {
+      const name = document.getElementById("nameAutocomplete").value.trim();
+      if (!name) {
+        alert("Please enter worker name!");
+        document.getElementById("nameAutocomplete").focus();
+        return;
+      }
+
+      saveWorkerName(name); // Save to autocomplete list
+
+      const workers = getWorkers();
+      const isDuplicate = workers.some(w => 
+        w.name.toLowerCase() === name.toLowerCase() && 
+        w.week === currentWeek && 
+        w.id !== currentEditingId
+      );
+      if (isDuplicate) {
+        alert("Worker with this name already exists this week!");
+        return;
+      }
+
+      const oldPayment = document.getElementById("oldPayment").value || "0";
+      const totalPayment = document.getElementById("totalPayment").value || "0";
+      const baaki = document.getElementById("baaki").value || "0";
+      const advance = document.getElementById("advance").value || "0";
+
+      const chalanRows = document.querySelectorAll('#chalanList .chalan-row');
+      const chalans = [];
+      let totalChalanAmount = 0;
+      chalanRows.forEach(row => {
+        const num = row.querySelector('.chalan-number').value.trim();
+        const amt = row.querySelector('.chalan-amount').value;
+        if (num || amt !== '') {
+          const amount = parseFloat(amt) || 0;
+          chalans.push({ number: num, amount: amount.toString() });
+          totalChalanAmount += amount;
+        }
+      });
+
+      const weeklyRows = document.querySelectorAll('#weeklyList .chalan-row');
+      const weeklyPayments = [];
+      let totalWeeklyAmount = 0;
+      weeklyRows.forEach(row => {
+        const amt = row.querySelector('.weekly-amount').value;
+        const note = row.querySelector('.weekly-note').value.trim();
+        if (amt !== '' || note !== '') {
+          const amount = parseFloat(amt) || 0;
+          weeklyPayments.push({ amount: amount.toString(), note });
+          totalWeeklyAmount += amount;
+        }
+      });
+
+      const sundayRows = document.querySelectorAll('#sundayList .chalan-row');
+      const sundayPayments = [];
+      let totalSundayAmount = 0;
+      sundayRows.forEach(row => {
+        const amt = row.querySelector('.sunday-amount').value;
+        const note = row.querySelector('.sunday-note').value.trim();
+        if (amt !== '' || note !== '') {
+          const amount = parseFloat(amt) || 0;
+          sundayPayments.push({ amount: amount.toString(), note });
+          totalSundayAmount += amount;
+        }
+      });
+
+      const totalChalanOld = (parseFloat(oldPayment) || 0) + totalChalanAmount;
+
+      if (currentEditingId) {
+        const idx = workers.findIndex(w => w.id === currentEditingId);
+        if (idx !== -1) {
+          workers[idx] = { 
+            name, 
+            oldPayment, 
+            chalans, 
+            totalChalanAmount: totalChalanAmount.toString(),
+            totalChalanOld: totalChalanOld.toString(), 
+            weeklyPayments, 
+            totalWeeklyAmount: totalWeeklyAmount.toString(),
+            sundayPayments, 
+            totalSundayAmount: totalSundayAmount.toString(),
+            totalPayment, 
+            baaki, 
+            advance,
+            id: currentEditingId, 
+            week: currentWeek 
+          };
+        }
+      } else {
+        workers.push({ 
+          name, 
+          oldPayment, 
+          chalans, 
+          totalChalanAmount: totalChalanAmount.toString(),
+          totalChalanOld: totalChalanOld.toString(), 
+          weeklyPayments, 
+          totalWeeklyAmount: totalWeeklyAmount.toString(),
+          sundayPayments, 
+          totalSundayAmount: totalSundayAmount.toString(),
+          totalPayment, 
+          baaki, 
+          advance,
+          id: Date.now(), 
+          week: currentWeek 
+        });
+      }
+
+      localStorage.setItem("karigarWorkers", JSON.stringify(workers));
+      clearForm();
+      loadWorkers();
+      document.getElementById("workerTable").scrollIntoView({ behavior: 'smooth' });
+      alert(currentEditingId ? "Payment updated successfully!" : "Payment saved successfully!");
+      currentEditingId = null;
+    }
+
+    // Load Workers
+    function loadWorkers() {
+      const workers = getWorkers().filter(w => w.week === currentWeek);
+      const tbody = document.getElementById("workerList");
+      tbody.innerHTML = "";
+      let totals = [0, 0, 0, 0, 0, 0, 0, 0]; // old, chAmt, chOld, weekly, sun, pay, baaki, advance
+
+      if (workers.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="11" style="text-align:center;color:#95a5a6;">No records found for this week.</td>`;
+        tbody.appendChild(tr);
+      } else {
+        workers.forEach(w => {
+          const old = +w.oldPayment || 0;
+          const chAmt = +w.totalChalanAmount || 0;
+          const chOld = +w.totalChalanOld || 0;
+          const we = +w.totalWeeklyAmount || 0;
+          const su = +w.totalSundayAmount || 0;
+          const tp = +w.totalPayment || 0;
+          const bk = +w.baaki || 0;
+          const ad = +w.advance || 0;
+          totals[0] += old; 
+          totals[1] += chAmt; 
+          totals[2] += chOld; 
+          totals[3] += we; 
+          totals[4] += su; 
+          totals[5] += tp; 
+          totals[6] += bk; 
+          totals[7] += ad;
+
+          let chalanNumHtml = '', chalanAmtHtml = '';
+          if (w.chalans && w.chalans.length > 0) {
+            w.chalans.forEach(c => {
+              const num = c.number || '-';
+              const amt = parseFloat(c.amount) || 0;
+              chalanNumHtml += `<div class="chalan-line">${num}</div>`;
+              chalanAmtHtml += `<div class="chalan-line">₹${amt.toLocaleString('en-IN')}</div>`;
+            });
+          } else {
+            chalanNumHtml = '<div class="chalan-line">-</div>';
+            chalanAmtHtml = '<div class="chalan-line">₹0</div>';
+          }
+
+          let weeklyHtml = '';
+          if (w.weeklyPayments && w.weeklyPayments.length > 0) {
+            w.weeklyPayments.forEach(p => {
+              const amt = parseFloat(p.amount) || 0;
+              const note = p.note || '';
+              weeklyHtml += `<div class="chalan-line">₹${amt.toLocaleString('en-IN')}</div>`;
+              if (note) {
+                weeklyHtml += `<div class="note-line">${note}</div>`;
+              }
+            });
+          } else {
+            weeklyHtml = '<div class="chalan-line">₹0</div>';
+          }
+
+          let sundayHtml = '';
+          if (w.sundayPayments && w.sundayPayments.length > 0) {
+            w.sundayPayments.forEach(p => {
+              const amt = parseFloat(p.amount) || 0;
+              const note = p.note || '';
+              sundayHtml += `<div class="chalan-line">₹${amt.toLocaleString('en-IN')}</div>`;
+              if (note) {
+                sundayHtml += `<div class="note-line">${note}</div>`;
+              }
+            });
+          } else {
+            sundayHtml = '<div class="chalan-line">₹0</div>';
+          }
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${w.name}</td>
+            <td>₹${old.toLocaleString('en-IN')}</td>
+            <td><div class="chalan-stack">${chalanNumHtml}</div></td>
+            <td><div class="chalan-stack">${chalanAmtHtml}</div></td>
+            <td>₹${chOld.toLocaleString('en-IN')}</td>
+            <td><div class="chalan-stack">${weeklyHtml}</div></td>
+            <td><div class="chalan-stack">${sundayHtml}</div></td>
+            <td>₹${tp.toLocaleString('en-IN')}</td>
+            <td>₹${bk.toLocaleString('en-IN')}</td>
+            <td>₹${ad.toLocaleString('en-IN')}</td>
+            <td class="action-buttons">
+              <button onclick="editWorker(${w.id})" class="btn-info">Edit</button>
+              <button onclick="viewWorker(${w.id})" class="btn-info">View</button>
+              <button onclick="addPaymentForWorker('${w.name}', ${bk})" class="btn-success">Add Payment</button>
+              <button onclick="deleteWorker(${w.id})" class="btn-danger">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById("totalOldPayment").textContent = `₹${totals[0].toLocaleString('en-IN')}`;
+      document.getElementById("totalChalanAmount").textContent = `₹${totals[1].toLocaleString('en-IN')}`;
+      document.getElementById("totalChalanOldSum").textContent = `₹${totals[2].toLocaleString('en-IN')}`;
+      document.getElementById("totalWeekly").textContent = `₹${totals[3].toLocaleString('en-IN')}`;
+      document.getElementById("totalSunday").textContent = `₹${totals[4].toLocaleString('en-IN')}`;
+      document.getElementById("totalPaymentSum").textContent = `₹${totals[5].toLocaleString('en-IN')}`;
+      document.getElementById("totalBaaki").textContent = `₹${totals[6].toLocaleString('en-IN')}`;
+      document.getElementById("totalAdvance").textContent = `₹${totals[7].toLocaleString('en-IN')}`;
+    }
+
+    // Edit Worker
+    function editWorker(id) {
+      const workers = getWorkers();
+      const w = workers.find(w => w.id === id);
+      if (!w) return;
+
+      document.getElementById("nameAutocomplete").value = w.name;
+      document.getElementById("oldPayment").value = w.oldPayment;
+
+      const chalanContainer = document.getElementById("chalanList");
+      chalanContainer.innerHTML = "";
+      if (w.chalans && w.chalans.length > 0) {
+        w.chalans.forEach(c => addChalanRow(c.number, c.amount));
+      } else {
+        addChalanRow();
+      }
+
+      const weeklyContainer = document.getElementById("weeklyList");
+      weeklyContainer.innerHTML = "";
+      if (w.weeklyPayments && w.weeklyPayments.length > 0) {
+        w.weeklyPayments.forEach(p => addWeeklyRow(p.amount, p.note));
+      } else {
+        addWeeklyRow();
+      }
+
+      const sundayContainer = document.getElementById("sundayList");
+      sundayContainer.innerHTML = "";
+      if (w.sundayPayments && w.sundayPayments.length > 0) {
+        w.sundayPayments.forEach(p => addSundayRow(p.amount, p.note));
+      } else {
+        addSundayRow();
+      }
+
+      calculateTotals();
+      currentEditingId = id;
+      document.getElementById("nameAutocomplete").focus();
+    }
+
+    // Clear Form
+    function clearForm() {
+      document.getElementById("nameAutocomplete").value = "";
+      document.getElementById("oldPayment").value = "";
+      document.getElementById("chalanList").innerHTML = "";
+      addChalanRow();
+      document.getElementById("weeklyList").innerHTML = "";
+      addWeeklyRow();
+      document.getElementById("sundayList").innerHTML = "";
+      addSundayRow();
+      document.getElementById("totalPayment").value = "";
+      document.getElementById("baaki").value = "";
+      document.getElementById("advance").value = "";
+      document.getElementById("totalChalanOld").value = "";
+      currentEditingId = null;
+      document.getElementById("nameAutocomplete").focus();
+    }
+
+    // Get Workers from localStorage
+    function getWorkers() {
+      const data = localStorage.getItem("karigarWorkers");
+      return data ? JSON.parse(data) : [];
+    }
+
+    // Delete Worker
+    function deleteWorker(id) {
+      if (confirm("Are you sure you want to delete this record?")) {
+        const workers = getWorkers();
+        const filteredWorkers = workers.filter(w => w.id !== id);
+        localStorage.setItem("karigarWorkers", JSON.stringify(filteredWorkers));
+        loadWorkers();
+      }
+    }
+
+    // Search Workers
+    function searchWorkers() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const searchTerm = document.getElementById("search").value.toLowerCase();
+        const workers = getWorkers().filter(w => w.week === currentWeek);
+        const tbody = document.getElementById("workerList");
+        tbody.innerHTML = "";
+        
+        if (searchTerm === "") {
+          loadWorkers();
+          return;
+        }
+        
+        const filteredWorkers = workers.filter(w => 
+          w.name.toLowerCase().includes(searchTerm)
+        );
+        
+        if (filteredWorkers.length === 0) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td colspan="11" style="text-align:center;color:#95a5a6;">No matching records found.</td>`;
+          tbody.appendChild(tr);
+        } else {
+          filteredWorkers.forEach(w => {
+            const old = +w.oldPayment || 0;
+            const chAmt = +w.totalChalanAmount || 0;
+            const chOld = +w.totalChalanOld || 0;
+            const we = +w.totalWeeklyAmount || 0;
+            const su = +w.totalSundayAmount || 0;
+            const tp = +w.totalPayment || 0;
+            const bk = +w.baaki || 0;
+            const ad = +w.advance || 0;
+
+            let chalanNumHtml = '', chalanAmtHtml = '';
+            if (w.chalans && w.chalans.length > 0) {
+              w.chalans.forEach(c => {
+                const num = c.number || '-';
+                const amt = parseFloat(c.amount) || 0;
+                chalanNumHtml += `<div class="chalan-line">${num}</div>`;
+                chalanAmtHtml += `<div class="chalan-line">₹${amt.toLocaleString('en-IN')}</div>`;
+              });
+            } else {
+              chalanNumHtml = '<div class="chalan-line">-</div>';
+              chalanAmtHtml = '<div class="chalan-line">₹0</div>';
+            }
+
+            let weeklyHtml = '';
+            if (w.weeklyPayments && w.weeklyPayments.length > 0) {
+              w.weeklyPayments.forEach(p => {
+                const amt = parseFloat(p.amount) || 0;
+                const note = p.note || '';
+                weeklyHtml += `<div class="chalan-line">₹${amt.toLocaleString('en-IN')}</div>`;
+                if (note) {
+                  weeklyHtml += `<div class="note-line">${note}</div>`;
+                }
+              });
+            } else {
+              weeklyHtml = '<div class="chalan-line">₹0</div>';
+            }
+
+            let sundayHtml = '';
+            if (w.sundayPayments && w.sundayPayments.length > 0) {
+              w.sundayPayments.forEach(p => {
+                const amt = parseFloat(p.amount) || 0;
+                const note = p.note || '';
+                sundayHtml += `<div class="chalan-line">₹${amt.toLocaleString('en-IN')}</div>`;
+                if (note) {
+                  sundayHtml += `<div class="note-line">${note}</div>`;
+                }
+              });
+            } else {
+              sundayHtml = '<div class="chalan-line">₹0</div>';
+            }
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${w.name}</td>
+              <td>₹${old.toLocaleString('en-IN')}</td>
+              <td><div class="chalan-stack">${chalanNumHtml}</div></td>
+              <td><div class="chalan-stack">${chalanAmtHtml}</div></td>
+              <td>₹${chOld.toLocaleString('en-IN')}</td>
+              <td><div class="chalan-stack">${weeklyHtml}</div></td>
+              <td><div class="chalan-stack">${sundayHtml}</div></td>
+              <td>₹${tp.toLocaleString('en-IN')}</td>
+              <td>₹${bk.toLocaleString('en-IN')}</td>
+              <td>₹${ad.toLocaleString('en-IN')}</td>
+              <td class="action-buttons">
+                <button onclick="editWorker(${w.id})" class="btn-info">Edit</button>
+                <button onclick="viewWorker(${w.id})" class="btn-info">View</button>
+                <button onclick="addPaymentForWorker('${w.name}', ${bk})" class="btn-success">Add Payment</button>
+                <button onclick="deleteWorker(${w.id})" class="btn-danger">Delete</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      }, 300);
+    }
+
+    // View Worker Details
+    function viewWorker(id) {
+      const workers = getWorkers();
+      const w = workers.find(w => w.id === id);
+      if (!w) return;
+
+      currentViewingWorker = w;
+      let chalanHtml = '';
+      if (w.chalans && w.chalans.length > 0) {
+        w.chalans.forEach(c => {
+          const num = c.number || '-';
+          const amt = parseFloat(c.amount) || 0;
+          chalanHtml += `<div><strong>Chalan No:</strong> ${num} | <strong>Amount:</strong> ₹${amt.toLocaleString('en-IN')}</div>`;
+        });
+      } else {
+        chalanHtml = '<div>No chalan entries</div>';
+      }
+
+      let weeklyHtml = '';
+      if (w.weeklyPayments && w.weeklyPayments.length > 0) {
+        w.weeklyPayments.forEach(p => {
+          const amt = parseFloat(p.amount) || 0;
+          const note = p.note || '';
+          weeklyHtml += `<div><strong>Amount:</strong> ₹${amt.toLocaleString('en-IN')}`;
+          if (note) {
+            weeklyHtml += ` | <strong>Note:</strong> ${note}`;
+          }
+          weeklyHtml += '</div>';
+        });
+      } else {
+        weeklyHtml = '<div>No weekly payments</div>';
+      }
+
+      let sundayHtml = '';
+      if (w.sundayPayments && w.sundayPayments.length > 0) {
+        w.sundayPayments.forEach(p => {
+          const amt = parseFloat(p.amount) || 0;
+          const note = p.note || '';
+          sundayHtml += `<div><strong>Amount:</strong> ₹${amt.toLocaleString('en-IN')}`;
+          if (note) {
+            sundayHtml += ` | <strong>Note:</strong> ${note}`;
+          }
+          sundayHtml += '</div>';
+        });
+      } else {
+        sundayHtml = '<div>No sunday payments</div>';
+      }
+
+      const modalDetails = document.getElementById("modalDetails");
+      modalDetails.innerHTML = `
+        <div style="margin-bottom: 15px;">
+          <h3>Worker: ${w.name}</h3>
+          <p><strong>Week:</strong> ${w.week}</p>
+        </div>
+        <div style="margin-bottom: 15px;">
+          <h4>Payment Details</h4>
+          <p><strong>Old Payment:</strong> ₹${(+w.oldPayment || 0).toLocaleString('en-IN')}</p>
+          <p><strong>Total Chalan + Old:</strong> ₹${(+w.totalChalanOld || 0).toLocaleString('en-IN')}</p>
+          <p><strong>Total Weekly Payments:</strong> ₹${(+w.totalWeeklyAmount || 0).toLocaleString('en-IN')}</p>
+          <p><strong>Total Sunday Payments:</strong> ₹${(+w.totalSundayAmount || 0).toLocaleString('en-IN')}</p>
+          <p><strong>Total Payment:</strong> ₹${(+w.totalPayment || 0).toLocaleString('en-IN')}</p>
+          <p><strong>Baaki:</strong> ₹${(+w.baaki || 0).toLocaleString('en-IN')}</p>
+          <p><strong>Advance:</strong> ₹${(+w.advance || 0).toLocaleString('en-IN')}</p>
+        </div>
+        <div style="margin-bottom: 15px;">
+          <h4>Chalan Entries</h4>
+          ${chalanHtml}
+        </div>
+        <div style="margin-bottom: 15px;">
+          <h4>Weekly Payments</h4>
+          ${weeklyHtml}
+        </div>
+        <div style="margin-bottom: 15px;">
+          <h4>Sunday Payments</h4>
+          ${sundayHtml}
+        </div>
+      `;
+
+      document.getElementById("viewModal").style.display = "block";
+    }
+
+    // Close Modal
+    function closeModal() {
+      document.getElementById("viewModal").style.display = "none";
+    }
+
+    // Export to CSV
+    function exportCSV() {
+      const workers = getWorkers().filter(w => w.week === currentWeek);
+      if (workers.length === 0) {
+        alert("No data to export!");
+        return;
+      }
+
+      let csvContent = "Name,Old Payment,Chalan No.,Chalan Amount,Total Chalan+Old,Weekly Amount,Weekly Note,Sunday Amount,Sunday Note,Total Payment,Baaki,Advance\n";
+      
+      workers.forEach(w => {
+        // Create a single row per worker with all chalan entries
+        if (w.chalans && w.chalans.length > 0) {
+          w.chalans.forEach((c, index) => {
+            const chalanNo = c.number || '';
+            const chalanAmt = c.amount || '0';
+            const totalChalanOld = w.totalChalanOld || '0';
+            const weeklyAmt = w.weeklyPayments && w.weeklyPayments[index] ? w.weeklyPayments[index].amount || '0' : '0';
+            const weeklyNote = w.weeklyPayments && w.weeklyPayments[index] ? w.weeklyPayments[index].note || '' : '';
+            const sundayAmt = w.sundayPayments && w.sundayPayments[index] ? w.sundayPayments[index].amount || '0' : '0';
+            const sundayNote = w.sundayPayments && w.sundayPayments[index] ? w.sundayPayments[index].note || '' : '';
+            const totalPayment = w.totalPayment || '0';
+            const baaki = w.baaki || '0';
+            const advance = w.advance || '0';
+            
+            csvContent += `"${w.name}",${w.oldPayment},"${chalanNo}",${chalanAmt},${totalChalanOld},${weeklyAmt},"${weeklyNote}",${sundayAmt},"${sundayNote}",${totalPayment},${baaki},${advance}\n`;
+          });
+        } else {
+          // If no chalan entries, create a row with empty chalan values
+          csvContent += `"${w.name}",${w.oldPayment},,,${w.totalChalanOld},,,${w.totalWeeklyAmount},,${w.totalSundayAmount},${w.totalPayment},${w.baaki},${w.advance}\n`;
+        }
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `karigar_payments_week_${currentWeek}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Import CSV
+    function importCSV() {
+      document.getElementById("csvFileInput").click();
+    }
+
+    // Handle CSV Import
+    function handleCSVImport(files) {
+      if (files.length === 0) return;
+      
+      const file = files[0];
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        const contents = e.target.result;
+        const lines = contents.split('\n');
+        
+        // Skip header line
+        const data = lines.slice(1).filter(line => line.trim() !== '');
+        
+        if (data.length === 0) {
+          alert("No data to import!");
+          return;
+        }
+        
+        const workers = getWorkers();
+        let importedCount = 0;
+        
+        data.forEach(line => {
+          const values = line.split(',');
+          if (values.length < 12) return; // Need at least 12 fields
+          
+          const name = values[0].trim().replace(/"/g, '');
+          const oldPayment = values[1].trim();
+          const chalanNo = values[2].trim().replace(/"/g, '');
+          const chalanAmount = values[3].trim();
+          const totalChalanOld = values[4].trim();
+          const weeklyAmount = values[5].trim();
+          const weeklyNote = values[6].trim().replace(/"/g, '');
+          const sundayAmount = values[7].trim();
+          const sundayNote = values[8].trim().replace(/"/g, '');
+          const totalPayment = values[9].trim();
+          const baaki = values[10].trim();
+          const advance = values[11].trim();
+          
+          // Check if worker already exists for this week
+          const existingWorker = workers.find(w => 
+            w.name.toLowerCase() === name.toLowerCase() && 
+            w.week === currentWeek
+          );
+          
+          if (existingWorker) {
+            // Update existing worker
+            existingWorker.oldPayment = oldPayment;
+            existingWorker.totalChalanOld = totalChalanOld;
+            existingWorker.totalPayment = totalPayment;
+            existingWorker.baaki = baaki;
+            existingWorker.advance = advance;
+            
+            // Add chalan if exists
+            if (chalanNo || chalanAmount) {
+              if (!existingWorker.chalans) existingWorker.chalans = [];
+              existingWorker.chalans.push({
+                number: chalanNo,
+                amount: chalanAmount
+              });
+            }
+            
+            // Add weekly payment if exists
+            if (weeklyAmount || weeklyNote) {
+              if (!existingWorker.weeklyPayments) existingWorker.weeklyPayments = [];
+              existingWorker.weeklyPayments.push({
+                amount: weeklyAmount,
+                note: weeklyNote
+              });
+            }
+            
+            // Add sunday payment if exists
+            if (sundayAmount || sundayNote) {
+              if (!existingWorker.sundayPayments) existingWorker.sundayPayments = [];
+              existingWorker.sundayPayments.push({
+                amount: sundayAmount,
+                note: sundayNote
+              });
+            }
+          } else {
+            // Create new worker
+            const newWorker = {
+              name,
+              oldPayment,
+              chalans: chalanNo || chalanAmount ? [{ number: chalanNo, amount: chalanAmount }] : [],
+              totalChalanAmount: chalanAmount,
+              totalChalanOld,
+              weeklyPayments: weeklyAmount || weeklyNote ? [{ amount: weeklyAmount, note: weeklyNote }] : [],
+              totalWeeklyAmount: weeklyAmount,
+              sundayPayments: sundayAmount || sundayNote ? [{ amount: sundayAmount, note: sundayNote }] : [],
+              totalSundayAmount: sundayAmount,
+              totalPayment,
+              baaki,
+              advance,
+              id: Date.now() + Math.random(),
+              week: currentWeek
+            };
+            workers.push(newWorker);
+          }
+          
+          importedCount++;
+        });
+        
+        localStorage.setItem("karigarWorkers", JSON.stringify(workers));
+        loadWorkers();
+        alert(`Successfully imported ${importedCount} records!`);
+      };
+      
+      reader.readAsText(file);
+    }
+
+    // Add Payment for Worker
+    function addPaymentForWorker(name, baaki) {
+      const payment = prompt(`Enter payment amount for ${name} (Baaki: ₹${baaki}):`, "");
+      if (payment === null) return;
+      
+      const paymentAmount = parseFloat(payment);
+      if (isNaN(paymentAmount) || paymentAmount <= 0) {
+        alert("Invalid payment amount!");
+        return;
+      }
+      
+      if (paymentAmount > baaki) {
+        alert(`Payment amount cannot exceed baaki (₹${baaki})`);
+        return;
+      }
+      
+      // Find the worker
+      const workers = getWorkers();
+      const workerIndex = workers.findIndex(w => 
+        w.name.toLowerCase() === name.toLowerCase() && 
+        w.week === currentWeek
+      );
+      
+      if (workerIndex !== -1) {
+        // Update the worker's baaki and add payment to history
+        const updatedWorker = workers[workerIndex];
+        const newBaaki = baaki - paymentAmount;
+        updatedWorker.baaki = newBaaki.toString();
+        
+        // Add to weekly payments for record keeping
+        if (!updatedWorker.weeklyPayments) updatedWorker.weeklyPayments = [];
+        updatedWorker.weeklyPayments.push({
+          amount: paymentAmount.toString(),
+          note: "Additional payment"
+        });
+        
+        localStorage.setItem("karigarWorkers", JSON.stringify(workers));
+        loadWorkers();
+        alert(`Payment of ₹${paymentAmount} added successfully! New baaki: ₹${newBaaki}`);
+      }
+    }
+
+    // Download as Image (for view modal)
+    function downloadAsImage() {
+      const modal = document.getElementById("viewModal");
+      const modalContent = document.getElementById("modalDetails");
+      
+      html2canvas(modalContent).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `karigar_payment_${currentViewingWorker.name}_${currentWeek}.jpg`;
+        link.href = canvas.toDataURL("image/jpeg");
+        link.click();
+      });
+    }
+
+    // Initialize the app when page loads
+    window.onload = initApp;
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById("viewModal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+</html>
